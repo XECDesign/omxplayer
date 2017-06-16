@@ -1,0 +1,2 @@
+omxplayer: new-package-should-close-itp-bug
+omxplayer: binary-without-manpage usr/bin/omxplayer.bin

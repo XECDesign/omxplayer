@@ -1,0 +1,18 @@
+Source: omxplayer
+Section: video
+Priority: optional
+Maintainer: Serge Schneider <serge@raspberrypi.org>
+Build-Depends: debhelper (>= 9), libasound2-dev, libpcre3-dev, libidn11-dev, libboost1.58-dev, libfreetype6-dev, libusb-1.0-0-dev, libdbus-1-dev,
+ libssl1.0-dev, libssh-dev, libsmbclient-dev, libraspberrypi-dev, node-marked-man, libswresample-dev, libavcodec-dev, libavformat-dev, libraspberrypi0
+Standards-Version: 3.9.8
+Homepage: https://github.com/popcornmix/omxplayer
+Vcs-Git: https://github.com/popcornmix/omxplayer
+Vcs-Browser: https://github.com/popcornmix/omxplayer
+
+Package: omxplayer
+Architecture: armhf
+Depends: ${shlibs:Depends}, ${misc:Depends}, ca-certificates, dbus
+Description: Command line media player for Raspberry Pi
+ .
+ It plays all media files supported by the Raspberry Pi
+ hardware. Supports subtitles.

@@ -7,3 +7,4 @@ ffmpeg
 help.h
 keys.h
 patch.flag
+.pc
