@@ -1,6 +1,7 @@
 omxplayer (20170330~134343-2) stretch; urgency=medium
 
-  * Link against brcm libraries 
+  * Link against brcm libraries
+  * Don't link against swscale
 
  -- Serge Schneider <serge@raspberrypi.org>  Wed, 05 Jul 2017 16:31:32 +0100
 

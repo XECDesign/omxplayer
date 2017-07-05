@@ -12,11 +12,13 @@
  
  DIST ?= omxplayer-dist
  
-@@ -53,7 +53,7 @@
+@@ -52,8 +52,8 @@
+ 	bash gen_version.sh > version.h 
  
  omxplayer.bin: version $(OBJS)
- 	$(CXX) $(LDFLAGS) -o omxplayer.bin $(OBJS) -lvchiq_arm -lvchostif -lvcos -ldbus-1 -lrt -lpthread -lavutil -lavcodec -lavformat -lswscale -lswresample -lpcre
+-	$(CXX) $(LDFLAGS) -o omxplayer.bin $(OBJS) -lvchiq_arm -lvchostif -lvcos -ldbus-1 -lrt -lpthread -lavutil -lavcodec -lavformat -lswscale -lswresample -lpcre
 -	$(STRIP) omxplayer.bin
++	$(CXX) $(LDFLAGS) -o omxplayer.bin $(OBJS) -lvchiq_arm -lvchostif -lvcos -ldbus-1 -lrt -lpthread -lavutil -lavcodec -lavformat -lswresample -lpcre
 +	strip omxplayer.bin
  
  help.h: README.md Makefile
