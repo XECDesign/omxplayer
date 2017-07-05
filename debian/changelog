@@ -1,3 +1,9 @@
+omxplayer (20170330~134343-2) stretch; urgency=medium
+
+  * Link against brcm libraries 
+
+ -- Serge Schneider <serge@raspberrypi.org>  Wed, 05 Jul 2017 16:31:32 +0100
+
 omxplayer (20170330~134343-1) unstable; urgency=medium
 
   * Initial release
