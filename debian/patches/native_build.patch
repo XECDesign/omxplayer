@@ -1,18 +1,18 @@
 --- a/Makefile
 +++ b/Makefile
 @@ -2,9 +2,9 @@
- 
  CFLAGS+=-std=c++0x -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -DTARGET_POSIX -DTARGET_LINUX -fPIC -DPIC -D_REENTRANT -D_LARGEFILE64_SOURCE -D_FILE_OFFSET_BITS=64 -DHAVE_CMAKE_CONFIG -D__VIDEOCORE4__ -U_FORTIFY_SOURCE -Wall -DHAVE_OMXLIB -DUSE_EXTERNAL_FFMPEG  -DHAVE_LIBAVCODEC_AVCODEC_H -DHAVE_LIBAVUTIL_OPT_H -DHAVE_LIBAVUTIL_MEM_H -DHAVE_LIBAVUTIL_AVUTIL_H -DHAVE_LIBAVFORMAT_AVFORMAT_H -DHAVE_LIBAVFILTER_AVFILTER_H -DHAVE_LIBSWRESAMPLE_SWRESAMPLE_H -DOMX -DOMX_SKIP64BIT -ftree-vectorize -DUSE_EXTERNAL_OMX -DTARGET_RASPBERRY_PI -DUSE_EXTERNAL_LIBBCM_HOST
  
--LDFLAGS+=-L./ -Lffmpeg_compiled/usr/local/lib/ -lc -lWFC -lGLESv2 -lEGL -lbcm_host -lopenmaxil -lfreetype -lz -lasound
-+LDFLAGS+=-L./ -lc -lbrcmWFC -lbrcmGLESv2 -lbrcmEGL -lbcm_host -lopenmaxil -lfreetype -lz -lasound
+ LDFLAGS=-L$(SDKSTAGE)/opt/vc/lib/
+-LDFLAGS+=-L./ -Lffmpeg_compiled/usr/local/lib/ -lc -lbrcmGLESv2 -lbrcmEGL -lbcm_host -lopenmaxil -lfreetype -lz -lasound
++LDFLAGS+=-L./ -lc -lbrcmGLESv2 -lbrcmEGL -lbcm_host -lopenmaxil -lfreetype -lz -lasound
  
--INCLUDES+=-I./ -Ilinux -Iffmpeg_compiled/usr/local/include/ -I /usr/include/dbus-1.0 -I /usr/lib/arm-linux-gnueabihf/dbus-1.0/include
-+INCLUDES+=-I./ -Ilinux -I /usr/include/dbus-1.0 -I /usr/lib/arm-linux-gnueabihf/dbus-1.0/include
+-INCLUDES+=-I./ -Ilinux -Iffmpeg_compiled/usr/local/include/ -I /usr/include/dbus-1.0 -I /usr/lib/arm-linux-gnueabihf/dbus-1.0/include -I/usr/include/freetype2 -isystem$(SDKSTAGE)/opt/vc/include -isystem$(SDKSTAGE)/opt/vc/include/interface/vcos/pthreads
++INCLUDES+=-I./ -Ilinux -I /usr/include/dbus-1.0 -I /usr/lib/arm-linux-gnueabihf/dbus-1.0/include -I/usr/include/freetype2 -isystem$(SDKSTAGE)/opt/vc/include -isystem$(SDKSTAGE)/opt/vc/include/interface/vcos/pthreads
  
  DIST ?= omxplayer-dist
- 
-@@ -52,8 +52,8 @@
+ STRIP ?= strip
+@@ -53,8 +53,8 @@
  	bash gen_version.sh > version.h 
  
  omxplayer.bin: version $(OBJS)
@@ -23,7 +23,7 @@
  
  help.h: README.md Makefile
  	awk '/SYNOPSIS/{p=1;print;next} p&&/KEY BINDINGS/{p=0};p' $< \
-@@ -65,8 +65,7 @@
+@@ -66,8 +66,7 @@
  	> $@
  
  omxplayer.1: README.md
@@ -33,7 +33,7 @@
  
  clean:
  	for i in $(OBJS); do (if test -e "$$i"; then ( rm $$i ); fi ); done
-@@ -74,20 +73,15 @@
+@@ -75,26 +74,19 @@
  	@rm -f omxplayer.bin
  	@rm -rf $(DIST)
  	@rm -f omxplayer-dist.tar.gz
@@ -56,13 +56,27 @@
  	cp omxplayer.1 $(DIST)/usr/share/man/man1
 -	cp -P ffmpeg_compiled/usr/local/lib/*.so* $(DIST)/usr/lib/omxplayer/
 -	cd $(DIST); tar -czf ../$(DIST).tgz *
-+install:
+ 
+ install:
+-	cp -r $(DIST)/* /
 +	cp -r $(DIST)/* "$(DESTDIR)/"
+ 
+ uninstall:
+ 	rm -rf /usr/bin/omxplayer
+--- a/omxplayer
++++ b/omxplayer
+@@ -9,7 +9,7 @@
+ 
+ if [ -e "$OMXPLAYER_DIR/ffmpeg_compiled" ]; then
+     OMXPLAYER_LIBS="$OMXPLAYER_LIBS:$OMXPLAYER_DIR/ffmpeg_compiled/usr/local/lib"
+-else
++elif [ -d /usr/lib/omxplayer ]; then
+     OMXPLAYER_LIBS="$OMXPLAYER_LIBS:/usr/lib/omxplayer"
+ fi
+ 
 --- a/Makefile.ffmpeg
 +++ /dev/null
-@@ -1,259 +0,0 @@
--include Makefile.include
--
+@@ -1,255 +0,0 @@
 -CFLAGS=-D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -DTARGET_POSIX -DTARGET_LINUX -fPIC -DPIC -D_REENTRANT -D_HAVE_SBRK -D_LARGEFILE64_SOURCE -DHAVE_CMAKE_CONFIG -DHAVE_VMCS_CONFIG -D_REENTRANT -DUSE_VCHIQ_ARM -DVCHI_BULK_ALIGN=1 -DVCHI_BULK_GRANULARITY=1 -DEGL_SERVER_DISPMANX -D_LARGEFILE_SOURCE -D_LARGEFILE64_SOURCE -D__VIDEOCORE4__ -DGRAPHICS_X_VG=1 -U_FORTIFY_SOURCE -Wall -DHAVE_OMXLIB -DUSE_EXTERNAL_FFMPEG  -DHAVE_LIBAVCODEC_AVCODEC_H -DHAVE_LIBAVUTIL_MEM_H -DHAVE_LIBAVUTIL_AVUTIL_H -DHAVE_LIBAVFORMAT_AVFORMAT_H -DHAVE_LIBAVFILTER_AVFILTER_H -DOMX -DOMX_SKIP64BIT
 -
 -WORK=$(PWD)
@@ -77,7 +91,7 @@
 -
 -.PHONY : compile
 -compile: 
--	+$(MAKE) -C ffmpeg
+-	+$(MAKE) -j$(shell nproc) -C ffmpeg
 -
 -.PHONY : configure
 -configure: 
@@ -85,8 +99,7 @@
 -	CFLAGS="$(CFLAGS) ${INCLUDES}" \
 -	LDFLAGS="" \
 -  ./configure \
--			--extra-cflags="-mfpu=vfp -mfloat-abi=$(FLOAT) -mno-apcs-stack-check -mstructure-size-boundary=32 -mno-sched-prolog" \
--			--enable-cross-compile \
+-			--extra-cflags="-mfpu=vfp -mfloat-abi=hard -mno-apcs-stack-check -mstructure-size-boundary=32 -mno-sched-prolog" \
 -			--enable-shared \
 -			--disable-static \
 -			--arch=arm \
@@ -304,8 +317,7 @@
 -			--disable-decoder=xbin \
 -			--disable-decoder=idf \
 -			--disable-decoder=hevc \
--			--enable-decoder=opus \
--			--cross-prefix=$(HOST)-
+-			--enable-decoder=opus
 -
 -.PHONY : clean
 -clean:
@@ -313,70 +325,10 @@
 -
 -.PHONY : checkout
 -checkout:
--	git clone git://source.ffmpeg.org/ffmpeg ffmpeg -b release/3.1 --depth=1
+-	git clone git://source.ffmpeg.org/ffmpeg ffmpeg -b release/3.3 --depth=1
 -
 -.PHONY : install
 -install:
 -	cd ffmpeg; make -j9 DESTDIR="$(WORK)/ffmpeg_compiled" install
 -	$(HOST)-strip ffmpeg_compiled/usr/local/lib/*.so
 -
---- a/Makefile.include
-+++ b/Makefile.include
-@@ -1,40 +1,10 @@
--USE_BUILDROOT=0
- FLOAT=hard
- 
--ifeq ($(USE_BUILDROOT), 1)
--BUILDROOT	:=/opt/xbmc-bcm/buildroot
--SDKSTAGE	:=$(BUILDROOT)/output/staging
--TARGETFS	:=$(BUILDROOT)/output/target
--TOOLCHAIN	:=$(BUILDROOT)/output/host/usr/
--HOST			:=arm-unknown-linux-gnueabi
--SYSROOT		:=$(BUILDROOT)/output/host/usr/arm-unknown-linux-gnueabi/sysroot
--else
--BUILDROOT	:=/opt/bcm-rootfs
--SDKSTAGE	:=/opt/bcm-rootfs
--TARGETFS	:=/opt/bcm-rootfs
--TOOLCHAIN	:=/home/dc4/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian/
--HOST		:=arm-linux-gnueabihf
--#SYSROOT		:=$(TOOLCHAIN)/arm-bcm2708hardfp-linux-gnueabi/sysroot
--SYSROOT		:=/opt/bcm-rootfs
--endif
-+CFLAGS +=  -mfloat-abi=hard -fomit-frame-pointer -mabi=aapcs-linux -Wno-psabi -mno-apcs-stack-check -O3 -mstructure-size-boundary=32 -mno-sched-prolog -I/usr/include/dbus-1.0 -I/usr/lib/arm-linux-gnueabihf/dbus-1.0/include
- 
--JOBS=7
-+BUILDROOT	:=/usr/local/src/omxplayer
-+TOOLCHAIN	:=/usr/
-+CXXCP 		:= $(CXX) -E
- 
--CFLAGS			:= -isystem$(PREFIX)/include
--CXXFLAGS		:= $(CFLAGS)
--CPPFLAGS		:= $(CFLAGS)
--LDFLAGS			:= -L$(BUILDROOT)/lib
--LD					:= $(TOOLCHAIN)/bin/$(HOST)-ld --sysroot=$(SYSROOT)
--CC					:= $(TOOLCHAIN)/bin/$(HOST)-gcc --sysroot=$(SYSROOT)
--CXX         := $(TOOLCHAIN)/bin/$(HOST)-g++ --sysroot=$(SYSROOT)
--OBJDUMP			:= $(TOOLCHAIN)/bin/$(HOST)-objdump
--RANLIB			:= $(TOOLCHAIN)/bin/$(HOST)-ranlib
--STRIP				:= $(TOOLCHAIN)/bin/$(HOST)-strip
--AR 					:= $(TOOLCHAIN)/bin/$(HOST)-ar
--CXXCP 			:= $(CXX) -E
--PATH 				:= $(PREFIX)/bin:$(BUILDROOT)/output/host/usr/bin:$(PATH)
--
--CFLAGS			+= -pipe -mfloat-abi=$(FLOAT) -mcpu=arm1176jzf-s -fomit-frame-pointer -mabi=aapcs-linux -mtune=arm1176jzf-s -mfpu=vfp -Wno-psabi -mno-apcs-stack-check -g -mstructure-size-boundary=32 -mno-sched-prolog
--LDFLAGS			+= -L$(SDKSTAGE)/lib -L$(SDKSTAGE)/usr/lib -L$(SDKSTAGE)/opt/vc/lib/ -Lpcre/build
--#INCLUDES		+= -isystem$(SDKSTAGE)/usr/include -isystem$(SDKSTAGE)/opt/vc/include -isystem$(SYSROOT)/usr/include -isystem$(SDKSTAGE)/opt/vc/include/interface/vcos/pthreads -isystem$(SDKSTAGE)/usr/include/freetype2
--INCLUDES		+= -isystem$(SDKSTAGE)/opt/vc/include -isystem$(SYSROOT)/usr/include -isystem$(SDKSTAGE)/opt/vc/include/interface/vcos/pthreads -Ipcre/build -Iboost-trunk -Ifreetype2/include
-+LDFLAGS		+= -L/opt/vc/lib -L/lib -L/usr/lib -lfreetype
-+INCLUDES	+= -I/opt/vc/include/interface/vcos/pthreads 			-I/opt/vc/include 			-I/opt/vc/include/interface/vmcs_host 			-I/opt/vc/include/interface/vmcs_host/linux 			-I/usr/lib/arm-linux-gnueabihf/dbus-1.0/include 			-I/usr/include 			-I/usr/include/freetype2
---- a/omxplayer
-+++ b/omxplayer
-@@ -9,7 +9,7 @@
- 
- if [ -e "$OMXPLAYER_DIR/ffmpeg_compiled" ]; then
-     OMXPLAYER_LIBS="$OMXPLAYER_LIBS:$OMXPLAYER_DIR/ffmpeg_compiled/usr/local/lib"
--else
-+elif [ -d /usr/lib/omxplayer ]; then
-     OMXPLAYER_LIBS="$OMXPLAYER_LIBS:/usr/lib/omxplayer"
- fi
- 

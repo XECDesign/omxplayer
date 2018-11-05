@@ -1,0 +1,26 @@
+--- a/gen_version.sh
++++ b/gen_version.sh
+@@ -9,20 +9,9 @@
+ #
+ 
+ date=$(date -R 2> /dev/null)
+-hash="UNKNOWN"
+-branch="UNKNOWN"
+-repo="UNKNOWN"
+-
+-ref=$(git symbolic-ref -q HEAD 2> /dev/null)
+-if [ x"$?" = x"0" ]; then
+-    hash=$(git rev-parse --short $ref 2> /dev/null)
+-    branch=${ref#refs/heads/}
+-
+-    upstream=$(git for-each-ref --format='%(upstream:short)' $ref 2> /dev/null)
+-    if [ x"$upstream" != x"" ]; then
+-	repo=$(git config remote.${upstream%/$branch}.url)
+-    fi
+-fi
++hash="$(dpkg-parsechangelog -S version | sed -n 's/.*git\([^-]*\).*/\1/p')"
++branch="master"
++repo="https://github.com/popcornmix/omxplayer.git"
+ 
+ echo "#ifndef __VERSION_H__"
+ echo "#define __VERSION_H__"

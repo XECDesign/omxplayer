@@ -1,3 +1,11 @@
+omxplayer (20180905+git061425a-1) stretch; urgency=medium
+
+  * Get latest changes
+  * Make sure version information is set
+  * Change version format
+
+ -- Serge Schneider <serge@raspberrypi.org>  Mon, 05 Nov 2018 13:55:20 +0000
+
 omxplayer (20170330~134343-2) stretch; urgency=medium
 
   * Link against brcm libraries
