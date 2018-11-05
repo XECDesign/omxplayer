@@ -18,14 +18,14 @@ if you modify the structure of README.md!
 ## COMPILING
 
 Run this script which will install build dependency packages,
-including g++ 4.7, and update firmware
+including g++, and update firmware
 
     ./prepare-native-raspbian.sh
 
 Build with
 
     make ffmpeg
-    make
+    make -j$(nproc)
 
 Install with
     
@@ -327,8 +327,7 @@ Skip to the previous chapter.
 ##### Play
 
 Play the video. If the video is playing, it has no effect, if it is
-paused it will play from current position and if it is stopped it will
-play from the beginning.
+paused it will play from current position.
 
    Params       |   Type
 :-------------: | -------
@@ -354,7 +353,7 @@ paused it will start playing.
 
 ##### Stop
 
-Stops the video.
+Stops the video. This has the same effect as Quit (terminates the omxplayer instance).
 
    Params       |   Type
 :-------------: | -------
@@ -379,6 +378,23 @@ Seeks to a specific location in the file.  This is an *absolute* seek.
  1              | `string`          | Path (not currently used)
  2              | `int64`           | Position to seek to, in microseconds
  Return         | `null` or `int64` | If the supplied position is invalid, `null` is returned, otherwise the position (in microseconds) is returned
+
+##### SetAlpha
+
+Set the alpha transparency of the player [0-255].
+
+   Params       |   Type            | Description
+:-------------: | ----------------- | ------------------------------------
+ 1              | `string`          | Path (not currently used)
+ 2              | `int64`           | Alpha value, 0-255
+
+##### SetLayer
+
+Seeks the video playback layer.
+
+   Params       |   Type            | Description
+:-------------: | ----------------- | ------------------------------------
+ 1              | `int64`           | Layer to switch to
 
 ##### Mute
 
@@ -582,6 +598,14 @@ Millibels can be converted to/from acceptable values using the following:
  Return         | `double`  | Current volume
 
 [MPRIS_volume]: http://specifications.freedesktop.org/mpris-spec/latest/Player_Interface.html#Simple-Type:Volume
+
+##### OpenUri (w)
+
+Restart and open another URI for playing.
+
+   Params       |   Type    | Description
+:-------------: | --------- | --------------------------------
+1               | `string`  | URI to play
 
 ##### Position (ro)
 
