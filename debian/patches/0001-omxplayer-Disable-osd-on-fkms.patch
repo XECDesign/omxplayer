@@ -1,0 +1,99 @@
+From 5911803b5ffb2e8bcf96a5a6decd9f241ced4435 Mon Sep 17 00:00:00 2001
+From: popcornmix <popcornmix@gmail.com>
+Date: Tue, 18 Jun 2019 18:20:42 +0100
+Subject: [PATCH] omxplayer: Disable osd on fkms
+
+---
+ omxplayer.cpp |  2 +-
+ revision.cpp  | 27 ++++++++++++++++++++++-----
+ revision.h    |  4 ++++
+ 3 files changed, 27 insertions(+), 6 deletions(-)
+
+diff --git a/omxplayer.cpp b/omxplayer.cpp
+index 7c856c1..bcd9d87 100644
+--- a/omxplayer.cpp
++++ b/omxplayer.cpp
+@@ -80,7 +80,7 @@ long              m_Volume              = 0;
+ long              m_Amplification       = 0;
+ bool              m_NativeDeinterlace   = false;
+ bool              m_HWDecode            = false;
+-bool              m_osd                 = !is_model_pi4();
++bool              m_osd                 = !is_model_pi4() && !is_fkms_active();
+ bool              m_no_keys             = false;
+ std::string       m_external_subtitles_path;
+ bool              m_has_external_subtitles = false;
+diff --git a/revision.cpp b/revision.cpp
+index e39ef7e..76be320 100644
+--- a/revision.cpp
++++ b/revision.cpp
+@@ -32,26 +32,37 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ 
+ #include "revision.h"
+ 
+-static unsigned int get_revision_code()
++static int read_string_from_file(const char *filename, const char *format, unsigned int *value)
+ {
+    FILE *fin;
+    char str[256];
+-   unsigned int revision_num = 0;
++   int found = 0;
+ 
+-   fin = fopen("/proc/cpuinfo", "rt");
++   fin = fopen(filename, "rt");
+ 
+    if (fin == NULL)
+       return 0;
+ 
+    while (fgets(str, sizeof(str), fin) != NULL)
+    {
+-      if (sscanf(str, "Revision : %x", &revision_num) == 1)
++      if (sscanf(str, format, value) == 1)
++      {
++         found = 1;
+          break;
++      }
+    }
+ 
+    fclose(fin);
+ 
+-   return revision_num;
++   return found;
++}
++
++static unsigned int get_revision_code()
++{
++   unsigned int revision_num = 0;
++   if (read_string_from_file("/proc/cpuinfo", "Revision : %x", &revision_num))
++      return revision_num;
++   return 0;
+ }
+ 
+ /* Returns the type of the Pi being used
+@@ -126,3 +137,9 @@ int get_processor_id(void)
+    }
+ }
+ 
++int is_fkms_active()
++{
++   unsigned int dummy;
++   return (read_string_from_file("/proc/device-tree/soc/v3d@7ec00000/status", "okay", &dummy) ||
++      read_string_from_file("/proc/device-tree/soc/firmwarekms@7e600000/status", "okay", &dummy));
++}
+diff --git a/revision.h b/revision.h
+index 130f875..4f342e5 100644
+--- a/revision.h
++++ b/revision.h
+@@ -38,6 +38,10 @@ extern int get_model_type(void);
+ */
+ extern int is_model_pi4(void);
+ 
++/* Returns 1 if fkms is active (dtoverlay=v3d-fkms-vc4)
++*/
++extern int is_fkms_active(void);
++
+ /* returns the processor ID
+ */
+ extern int get_processor_id(void);
+-- 
+2.20.1
+

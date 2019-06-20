@@ -1,3 +1,10 @@
+omxplayer (20190607+gitf06235c-3) buster; urgency=medium
+
+  * 0001-omxplayer-Disable-osd-on-fkms.patch
+    - omxplayer: Disable osd on fkms
+
+ -- Serge Schneider <serge@raspberrypi.org>  Thu, 20 Jun 2019 15:11:04 +0100
+
 omxplayer (20190607+gitf06235c-2) buster; urgency=medium
 
   * Buster build
