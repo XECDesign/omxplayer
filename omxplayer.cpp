@@ -34,6 +34,7 @@ extern "C" {
 #include <libavutil/avutil.h>
 };
 
+#include "revision.h"
 #include "OMXStreamInfo.h"
 
 #include "utils/log.h"
@@ -79,7 +80,7 @@ long              m_Volume              = 0;
 long              m_Amplification       = 0;
 bool              m_NativeDeinterlace   = false;
 bool              m_HWDecode            = false;
-bool              m_osd                 = true;
+bool              m_osd                 = !is_model_pi4() && !is_fkms_active();
 bool              m_no_keys             = false;
 std::string       m_external_subtitles_path;
 bool              m_has_external_subtitles = false;
@@ -1034,8 +1035,8 @@ int main(int argc, char *argv[])
 
   m_has_video     = m_omx_reader.VideoStreamCount();
   m_has_audio     = m_audio_index_use < 0 ? false : m_omx_reader.AudioStreamCount();
-  m_has_subtitle  = m_has_external_subtitles ||
-                    m_omx_reader.SubtitleStreamCount();
+  m_has_subtitle  = !is_model_pi4() && !is_fkms_active() &&
+                     (m_has_external_subtitles || m_omx_reader.SubtitleStreamCount());
   m_loop          = m_loop && m_omx_reader.CanSeek();
 
   if (m_audio_extension)
