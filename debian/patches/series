@@ -1,4 +1,2 @@
 native_build.patch
 fix_version.patch
-0001-omxplayer-Disable-osd-on-pi4.patch
-0001-omxplayer-Disable-osd-on-fkms.patch

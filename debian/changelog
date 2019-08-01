@@ -1,3 +1,10 @@
+omxplayer (20190723+gitf543a0d-1) buster; urgency=medium
+
+  * Update to f543a0d
+  * Remove upstreamed patches
+
+ -- Serge Schneider <serge@raspberrypi.org>  Thu, 01 Aug 2019 13:35:03 +0100
+
 omxplayer (20190607+gitf06235c-3) buster; urgency=medium
 
   * 0001-omxplayer-Disable-osd-on-fkms.patch

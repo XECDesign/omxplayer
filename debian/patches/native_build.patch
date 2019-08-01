@@ -12,7 +12,7 @@
  
  DIST ?= omxplayer-dist
  STRIP ?= strip
-@@ -53,8 +53,8 @@
+@@ -54,8 +54,8 @@
  	bash gen_version.sh > version.h 
  
  omxplayer.bin: version $(OBJS)
@@ -23,7 +23,7 @@
  
  help.h: README.md Makefile
  	awk '/SYNOPSIS/{p=1;print;next} p&&/KEY BINDINGS/{p=0};p' $< \
-@@ -66,8 +66,7 @@
+@@ -67,8 +67,7 @@
  	> $@
  
  omxplayer.1: README.md
@@ -33,7 +33,7 @@
  
  clean:
  	for i in $(OBJS); do (if test -e "$$i"; then ( rm $$i ); fi ); done
-@@ -75,26 +74,19 @@
+@@ -76,26 +75,19 @@
  	@rm -f omxplayer.bin
  	@rm -rf $(DIST)
  	@rm -f omxplayer-dist.tar.gz
@@ -99,7 +99,7 @@
 -	CFLAGS="$(CFLAGS) ${INCLUDES}" \
 -	LDFLAGS="" \
 -  ./configure \
--			--extra-cflags="-mfpu=vfp -mfloat-abi=hard -mno-apcs-stack-check -mstructure-size-boundary=32 -mno-sched-prolog" \
+-			--extra-cflags="-mfpu=vfp -mfloat-abi=hard" \
 -			--enable-shared \
 -			--disable-static \
 -			--arch=arm \
